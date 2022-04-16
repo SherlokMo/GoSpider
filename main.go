@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"gocrawler/helpers"
+	"goSpider/helpers"
 	"io"
 	"log"
 	"net/http"

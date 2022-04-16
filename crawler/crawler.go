@@ -1,7 +1,7 @@
 package crawler
 
 import (
-	"gocrawler/helpers"
+	"goSpider/helpers"
 	"io"
 	"net/http"
 )
