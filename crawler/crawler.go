@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-type crawler struct {
+type spider struct {
 	baseurl string
 	links   []Link
 	depth   int
@@ -14,20 +14,20 @@ type crawler struct {
 
 const MAX_DEPTH int = 5
 
-func NewCrawler(baseurl string, depth int) *crawler {
-	return &crawler{
+func NewSpider(baseurl string, depth int) *spider {
+	return &spider{
 		baseurl: baseurl,
 		links:   make([]Link, 0),
 		depth:   depth,
 	}
 }
 
-func (c *crawler) Spider() {
+func (c *spider) Crawl() {
 	baseBody := c.callBase()
 	defer baseBody.Close()
 }
 
-func (c *crawler) callBase() io.ReadCloser {
+func (c *spider) callBase() io.ReadCloser {
 	response, err := http.Get(c.baseurl)
 	helpers.HnadleError(err)
 
