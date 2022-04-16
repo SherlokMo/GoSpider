@@ -22,13 +22,13 @@ func NewSpider(baseurl string, depth int) *spider {
 	}
 }
 
-func (c *spider) Crawl() {
-	baseBody := c.callBase()
+func (s *spider) Crawl() {
+	baseBody := s.callBase()
 	defer baseBody.Close()
 }
 
-func (c *spider) callBase() io.ReadCloser {
-	response, err := http.Get(c.baseurl)
+func (s *spider) callBase() io.ReadCloser {
+	response, err := http.Get(s.baseurl)
 	helpers.HnadleError(err)
 
 	return response.Body
