@@ -1,18 +1,21 @@
 package tokenizer
 
 import (
+	"goSpider/helpers"
 	"io"
 
 	"golang.org/x/net/html"
 )
 
 type tokenizationManager struct {
+	baseurl   string
 	tokenizer *html.Tokenizer
 	currToken token
 }
 
-func NewTokenizer(stream io.Reader) *tokenizationManager {
+func NewTokenizer(stream io.Reader, baseurl string) *tokenizationManager {
 	return &tokenizationManager{
+		baseurl:   baseurl,
 		tokenizer: html.NewTokenizer(stream),
 	}
 }
@@ -24,11 +27,22 @@ func (t *tokenizationManager) splitAnchors() {
 			break
 		} else if t.currToken.IsTypeOf(html.StartTagToken) {
 			if "a" == t.currToken.Data() {
-				// TODO: Handle Link
+				hyperLink, _ := t.getHyperLink()
 				t.updateToken()
 			}
 		}
 	}
+}
+
+func (t tokenizationManager) getHyperLink() (string, error) {
+	attributes := t.currToken.Attr()
+	for _, attr := range attributes {
+		if attr.Key == "href" {
+			HyperLink, err := helpers.ProvisionURL(attr.Val, t.baseurl)
+			return HyperLink, err
+		}
+	}
+	return "", nil
 }
 
 func (t *tokenizationManager) updateToken() {

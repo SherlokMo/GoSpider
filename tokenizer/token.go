@@ -12,6 +12,10 @@ type token struct {
 	err       error
 }
 
+func (t token) Attr() []html.Attribute {
+	return t.htmlToken.Attr
+}
+
 func (t token) Data() string {
 	return t.htmlToken.Data
 }
