@@ -2,6 +2,7 @@ package tokenizer
 
 import (
 	"goSpider/helpers"
+	"goSpider/link"
 	"io"
 
 	"golang.org/x/net/html"
@@ -20,7 +21,8 @@ func NewTokenizer(stream io.Reader, baseurl string) *tokenizationManager {
 	}
 }
 
-func (t *tokenizationManager) splitAnchors() {
+func (t *tokenizationManager) SplitAnchors() *[]link.Link {
+	var anchors []link.Link
 	for {
 		t.updateToken()
 		if err := t.currToken.IsSafeToken(); err == io.EOF {
@@ -29,9 +31,12 @@ func (t *tokenizationManager) splitAnchors() {
 			if "a" == t.currToken.Data() {
 				hyperLink, _ := t.getHyperLink()
 				t.updateToken()
+				anchors = append(anchors, *link.NewLink(hyperLink))
 			}
 		}
 	}
+
+	return &anchors
 }
 
 func (t tokenizationManager) getHyperLink() (string, error) {
