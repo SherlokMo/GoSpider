@@ -29,9 +29,11 @@ func (t *tokenizationManager) SplitAnchors() *[]link.Link {
 			break
 		} else if t.currToken.IsTypeOf(html.StartTagToken) {
 			if "a" == t.currToken.Data() {
-				hyperLink, _ := t.getHyperLink()
+				hyperLink, err := t.getHyperLink()
 				t.updateToken()
-				anchors = append(anchors, *link.NewLink(hyperLink))
+				if err == nil {
+					anchors = append(anchors, *link.NewLink(hyperLink))
+				}
 			}
 		}
 	}
