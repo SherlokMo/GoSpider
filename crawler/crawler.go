@@ -4,37 +4,45 @@ import (
 	"fmt"
 	"goSpider/helpers"
 	"goSpider/link"
+	"goSpider/memorydb"
 	"goSpider/tokenizer"
 	"io"
 	"net/http"
 )
 
 type spider struct {
-	baseurl string
+	visited *memorydb.MemDB[string, bool]
 	links   []link.Link
 	depth   int
 }
 
-func NewSpider(baseurl string, depth int) *spider {
+func NewSpider() *spider {
 	return &spider{
-		baseurl: baseurl,
-		links:   make([]link.Link, 0),
-		depth:   depth,
+		visited: memorydb.NewMemorydb[string, bool](),
+		depth:   0,
 	}
 }
 
-func (s *spider) Crawl() {
-	baseBody := s.callBase()
+func (s *spider) Crawl(target string) {
+	baseBody := s.callBase(target)
 	defer baseBody.Close()
-	spiderLegs := tokenizer.NewTokenizer(baseBody, s.baseurl)
+	s.markVisited(target)
+	spiderLegs := tokenizer.NewTokenizer(baseBody, target)
 	Links := spiderLegs.SplitAnchors()
 	for _, Link := range *Links {
-		fmt.Println(Link.Url)
+		if s.visited.Exist(Link.Url) != true {
+			fmt.Println(Link.Url)
+			s.Crawl(Link.Url)
+		}
 	}
 }
 
-func (s *spider) callBase() io.ReadCloser {
-	response, err := http.Get(s.baseurl)
+func (s *spider) markVisited(t string) {
+	s.visited.Store(t, true)
+}
+
+func (s *spider) callBase(target string) io.ReadCloser {
+	response, err := http.Get(target)
 	helpers.HnadleError(err)
 
 	return response.Body
