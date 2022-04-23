@@ -1,6 +1,9 @@
 package helpers
 
-import "errors"
+import (
+	"errors"
+	"net/url"
+)
 
 func HnadleError(err error) {
 	if err != nil {
@@ -16,8 +19,14 @@ func ProvisionURL(toProvision, base string) (string, error) {
 	} else if toProvision[0] == '/' {
 		toProvision = base + toProvision
 	} else if toProvision[0:2] == "./" {
-		toProvision = base + toProvision[1:]
+		toProvision = getBaseUrl(base) + toProvision[1:]
 	}
 
 	return toProvision, err
+}
+
+func getBaseUrl(t string) string {
+	u, _ := url.Parse(t)
+
+	return u.Scheme + "://" + u.Host
 }
