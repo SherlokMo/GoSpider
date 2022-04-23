@@ -1,6 +1,7 @@
 package tokenizer
 
 import (
+	"errors"
 	"goSpider/helpers"
 	"goSpider/link"
 	"io"
@@ -30,7 +31,6 @@ func (t *tokenizationManager) SplitAnchors() *[]link.Link {
 		} else if t.currToken.IsTypeOf(html.StartTagToken) {
 			if "a" == t.currToken.Data() {
 				hyperLink, err := t.getHyperLink()
-				t.updateToken()
 				if err == nil {
 					anchors = append(anchors, *link.NewLink(hyperLink))
 				}
@@ -49,7 +49,7 @@ func (t tokenizationManager) getHyperLink() (string, error) {
 			return HyperLink, err
 		}
 	}
-	return "", nil
+	return "", errors.New("Empty anchor tag")
 }
 
 func (t *tokenizationManager) updateToken() {
