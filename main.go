@@ -13,6 +13,6 @@ func main() {
 	}
 
 	baseUrl := os.Args[1]
-	spider := crawler.NewSpider(baseUrl, MAX_DEPTH)
-	spider.Crawl()
+	spider := crawler.NewSpider()
+	spider.Crawl(baseUrl)
 }
