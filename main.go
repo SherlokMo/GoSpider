@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-const MAX_DEPTH int = 5
+const MAX_DEPTH int = 1
 
 func main() {
 	if len(os.Args) < 2 {
@@ -14,5 +14,5 @@ func main() {
 
 	baseUrl := os.Args[1]
 	spider := crawler.NewSpider()
-	spider.Crawl(baseUrl)
+	spider.Crawl(baseUrl, MAX_DEPTH)
 }
