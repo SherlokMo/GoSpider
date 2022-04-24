@@ -6,8 +6,8 @@ GoSpider is a side project to study golang and concurrency; it crawls a website 
 
 Just type in your console
 
-```golang
-    go run main.go https://example.com
+```bash
+go run main.go https://example.com
 ```
 
 # Notes:
