@@ -20,6 +20,8 @@ func (m *MemDB[K, V]) Store(key K, v V) {
 }
 
 func (m *MemDB[K, T]) Exist(key K) bool {
+	m.mu.Lock()
+	defer m.mu.Unlock()
 	_, ok := m.hashmap[key]
 	return ok
 }
