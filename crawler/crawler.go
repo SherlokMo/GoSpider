@@ -1,13 +1,14 @@
 package crawler
 
 import (
-	"fmt"
 	"goSpider/helpers"
 	"goSpider/link"
 	"goSpider/memorydb"
 	"goSpider/tokenizer"
 	"io"
+	"log"
 	"net/http"
+	"sync"
 )
 
 type spider struct {
@@ -23,18 +24,27 @@ func NewSpider() *spider {
 	}
 }
 
-func (s *spider) Crawl(target string) {
+func (s *spider) Crawl(target string, depth int) {
+	var wg sync.WaitGroup
 	baseBody := s.callBase(target)
 	defer baseBody.Close()
+	if depth < 0 {
+		return
+	}
 	s.markVisited(target)
 	spiderLegs := tokenizer.NewTokenizer(baseBody, target)
 	Links := spiderLegs.SplitAnchors()
 	for _, Link := range *Links {
 		if s.visited.Exist(Link.Url) != true {
-			fmt.Println(Link.Url)
-			s.Crawl(Link.Url)
+			log.Println(Link.Url)
+			wg.Add(1)
+			go func(u string) {
+				defer wg.Done()
+				s.Crawl(u, depth-1)
+			}(Link.Url)
 		}
 	}
+	wg.Wait()
 }
 
 func (s *spider) markVisited(t string) {
