@@ -2,6 +2,7 @@ package crawler
 
 import (
 	"bytes"
+	"context"
 	"testing"
 )
 
@@ -26,5 +27,14 @@ func TestWebMethod(t *testing.T) {
 	Links := spider.web(reader, testSite)
 	if len(*Links) != 3 {
 		t.Errorf("Expected 3 sites recieved %v", len(*Links))
+	}
+}
+
+func TestRetrievDepth(t *testing.T) {
+	ctx := context.WithValue(context.Background(), DepthKey("depth"), 10)
+	spider := NewSpider(1)
+
+	if d := spider.retrieveDepth(ctx); d != 10 {
+		t.Errorf("Expected 10 recieved %v", d)
 	}
 }
