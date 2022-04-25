@@ -38,6 +38,7 @@ func (s *spider) Crawl(ctx context.Context, target string) {
 	Links := s.web(baseBody, target)
 	for _, Link := range *Links {
 		if !s.isVisited(Link.Url) {
+			s.addToVisited(Link.Url)
 			log.Println(Link.Url)
 			wg.Add(1)
 			go func() {
@@ -51,10 +52,13 @@ func (s *spider) Crawl(ctx context.Context, target string) {
 }
 
 func (s *spider) web(bodyStream io.Reader, targetUrl string) *[]link.Link {
-	s.visited.Store(targetUrl, true)
 	spiderLegs := tokenizer.NewTokenizer(bodyStream, targetUrl)
 	Links := spiderLegs.SplitAnchors()
 	return Links
+}
+
+func (s *spider) addToVisited(site string) {
+	s.visited.Store(site, true)
 }
 
 func (s *spider) isVisited(url string) bool {
