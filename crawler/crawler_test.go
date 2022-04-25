@@ -25,6 +25,6 @@ func TestWebMethod(t *testing.T) {
 	spider := NewSpider(1)
 	Links := spider.web(reader, testSite)
 	if len(*Links) != 3 {
-		t.Errorf("Expected 2 sites recieved %v", len(*Links))
+		t.Errorf("Expected 3 sites recieved %v", len(*Links))
 	}
 }
