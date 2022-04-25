@@ -1,4 +1,4 @@
-package helpers_test
+package test
 
 import (
 	"goSpider/helpers"
