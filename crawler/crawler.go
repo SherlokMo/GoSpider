@@ -35,25 +35,30 @@ func (s *spider) Crawl(ctx context.Context, target string) {
 	}
 	baseBody := s.callBase(target)
 	defer baseBody.Close()
-	s.markVisited(target)
-	spiderLegs := tokenizer.NewTokenizer(baseBody, target)
-	Links := spiderLegs.SplitAnchors()
+	Links := s.web(baseBody, target)
 	for _, Link := range *Links {
-		if s.visited.Exist(Link.Url) != true {
+		if !s.isVisited(Link.Url) {
 			log.Println(Link.Url)
 			wg.Add(1)
-			go func(u string) {
+			go func() {
 				defer wg.Done()
 				ctx := context.WithValue(ctx, DepthKey("depth"), currDepth+1)
-				s.Crawl(ctx, u)
-			}(Link.Url)
+				s.Crawl(ctx, Link.Url)
+			}()
 		}
 	}
 	wg.Wait()
 }
 
-func (s *spider) markVisited(t string) {
-	s.visited.Store(t, true)
+func (s *spider) web(bodyStream io.Reader, targetUrl string) *[]link.Link {
+	s.visited.Store(targetUrl, true)
+	spiderLegs := tokenizer.NewTokenizer(bodyStream, targetUrl)
+	Links := spiderLegs.SplitAnchors()
+	return Links
+}
+
+func (s *spider) isVisited(url string) bool {
+	return s.visited.Exist(url)
 }
 
 func (s *spider) callBase(target string) io.ReadCloser {
