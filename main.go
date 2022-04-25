@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"goSpider/crawler"
 	"os"
 )
@@ -13,6 +14,7 @@ func main() {
 	}
 
 	baseUrl := os.Args[1]
-	spider := crawler.NewSpider()
-	spider.Crawl(baseUrl, MAX_DEPTH)
+	ctx := context.WithValue(context.Background(), crawler.DepthKey("depth"), 0)
+	spider := crawler.NewSpider(MAX_DEPTH)
+	spider.Crawl(ctx, baseUrl)
 }

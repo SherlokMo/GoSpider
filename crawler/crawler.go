@@ -1,6 +1,7 @@
 package crawler
 
 import (
+	"context"
 	"goSpider/helpers"
 	"goSpider/link"
 	"goSpider/memorydb"
@@ -11,26 +12,29 @@ import (
 	"sync"
 )
 
+const depthKey DepthKey = "depth"
+
 type spider struct {
-	visited *memorydb.MemDB[string, bool]
-	links   []link.Link
-	depth   int
+	visited  *memorydb.MemDB[string, bool]
+	links    []link.Link
+	maxDepth int
 }
 
-func NewSpider() *spider {
+func NewSpider(maxDepth int) *spider {
 	return &spider{
-		visited: memorydb.NewMemorydb[string, bool](),
-		depth:   0,
+		visited:  memorydb.NewMemorydb[string, bool](),
+		maxDepth: maxDepth,
 	}
 }
 
-func (s *spider) Crawl(target string, depth int) {
+func (s *spider) Crawl(ctx context.Context, target string) {
 	var wg sync.WaitGroup
-	baseBody := s.callBase(target)
-	defer baseBody.Close()
-	if depth < 0 {
+	currDepth := s.retrieveDepth(ctx)
+	if currDepth > s.maxDepth {
 		return
 	}
+	baseBody := s.callBase(target)
+	defer baseBody.Close()
 	s.markVisited(target)
 	spiderLegs := tokenizer.NewTokenizer(baseBody, target)
 	Links := spiderLegs.SplitAnchors()
@@ -40,7 +44,8 @@ func (s *spider) Crawl(target string, depth int) {
 			wg.Add(1)
 			go func(u string) {
 				defer wg.Done()
-				s.Crawl(u, depth-1)
+				ctx := context.WithValue(ctx, DepthKey("depth"), currDepth+1)
+				s.Crawl(ctx, u)
 			}(Link.Url)
 		}
 	}
@@ -56,4 +61,8 @@ func (s *spider) callBase(target string) io.ReadCloser {
 	helpers.HnadleError(err)
 
 	return response.Body
+}
+
+func (s *spider) retrieveDepth(ctx context.Context) int {
+	return ctx.Value(depthKey).(int)
 }
