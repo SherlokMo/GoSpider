@@ -15,7 +15,7 @@ import (
 const depthKey DepthKey = "depth"
 
 type spider struct {
-	visited  *memorydb.MemDB[string, bool]
+	visited  memorydb.IMemoryDB[string, bool]
 	links    []link.Link
 	maxDepth int
 }
